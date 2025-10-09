@@ -31,7 +31,7 @@ public class InMemoryHistoryManager implements HistoryManager {
 		if (oldTail == null) {
 			head = newNode;
 		} else {
-			oldTail.next = newNode;
+			oldTail.setNext(newNode);
 		}
 
 		taskMap.put(task.getId(), newNode); // Добавляем в map для быстрого доступа
@@ -42,25 +42,26 @@ public class InMemoryHistoryManager implements HistoryManager {
 			return;
 		}
 
-		final Node<Task> next = node.next;
-		final Node<Task> prev = node.prev;
+		final Node<Task> next = node.getNext();
+		final Node<Task> prev = node.getPrev();
 
 		// Удаляем узел из списка
 		if (prev == null) {
 			head = next;
 		} else {
-			prev.next = next;
-			node.prev = null;
+			prev.setNext(next);
+			node.setPrev(null);
 		}
 
 		if (next == null) {
 			tail = prev;
 		} else {
-			next.prev = prev;
-			node.next = null;
+			next.setPrev(prev);
+			node.setNext(null);
 		}
 
-		taskMap.remove(node.data.getId()); // Удаляем указатель из taskMap
+        Task task = node.getData();
+		taskMap.remove(task.getId()); // Удаляем указатель из taskMap
 	}
 
 	/**
@@ -71,8 +72,8 @@ public class InMemoryHistoryManager implements HistoryManager {
 		Node<Task> current = head;
 
 		while (current != null) {
-			tasks.add(current.data);
-			current = current.next;
+			tasks.add(current.getData());
+			current = current.getNext();
 		}
 
 		return tasks;
