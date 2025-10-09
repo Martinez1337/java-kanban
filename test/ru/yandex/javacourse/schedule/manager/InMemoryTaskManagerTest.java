@@ -21,7 +21,7 @@ public class InMemoryTaskManagerTest {
     }
 
     @Test
-    public void testAddTask() {
+    public void addNewTask_addTask() {
         Task task = new Task("Test 1", "Testing task 1", TaskStatus.NEW);
         manager.addNewTask(task);
         assertEquals(1, manager.getTasks().size(), "task should be added");
@@ -32,7 +32,7 @@ public class InMemoryTaskManagerTest {
     }
 
     @Test
-    public void testAddTaskWithId() {
+    public void addNewTask_addTaskWithPredefinedId() {
         Task task = new Task(42, "Test 1", "Testing task 1", TaskStatus.NEW);
         manager.addNewTask(task);
         assertEquals(1, manager.getTasks().size(), "task should be added");
@@ -41,7 +41,7 @@ public class InMemoryTaskManagerTest {
     }
 
     @Test
-    public void shouldThrowExceptionWhenAddingTaskWithExistingId() {
+    public void addNewTask_throwException_addingTaskWithExistingId() {
         Task task0 = new Task("Test 1", "Testing task 1", TaskStatus.NEW);
         Task task1 = new Task(1, "Test 2", "Testing task 2", TaskStatus.NEW);
         manager.addNewTask(task0);
@@ -49,7 +49,7 @@ public class InMemoryTaskManagerTest {
     }
 
     @Test
-    public void testAddTaskWithAndWithoutId() {
+    public void addNewTask_addTaskWithAndWithoutId() {
         Task task0 = new Task("Test 1", "Testing task 1", TaskStatus.NEW);
         Task task1 = new Task(2, "Test 2", "Testing task 2", TaskStatus.NEW);
         manager.addNewTask(task0);
@@ -62,7 +62,7 @@ public class InMemoryTaskManagerTest {
     }
 
     @Test
-    public void checkTaskNotChangedAfterAddTask() {
+    public void addNewTask_taskNotChanged() {
         int id = 1;
         String name = "Test 1";
         String description = "Testing task 1";
@@ -77,7 +77,7 @@ public class InMemoryTaskManagerTest {
     }
 
     @Test
-    public void testDeletedSubtasksDoNotContainOldIds() {
+    public void deletedSubtask_doNotContainOldIds() {
         Epic epic = new Epic("Test Epic", "Test Epic Description");
         int epicId = manager.addNewEpic(epic);
 
@@ -96,7 +96,7 @@ public class InMemoryTaskManagerTest {
     }
 
     @Test
-    public void testEpicsDoNotContainStaleSubtaskIdsAfterDeletion() {
+    public void deleteSubtask_epicsDoNotContainStaleSubtaskIds() {
         Epic epic = new Epic("Test Epic", "Test Epic Description");
         int epicId = manager.addNewEpic(epic);
 
@@ -118,7 +118,7 @@ public class InMemoryTaskManagerTest {
     }
 
     @Test
-    public void testDeleteEpicRemovesAllItsSubtasks() {
+    public void deleteEpic_removeAllItsSubtasks() {
         Epic epic = new Epic("Test Epic", "Test Epic Description");
         int epicId = manager.addNewEpic(epic);
 
@@ -136,7 +136,7 @@ public class InMemoryTaskManagerTest {
     }
 
     @Test
-    public void testDeleteAllSubtasksClearsEpicSubtaskIds() {
+    public void deleteAllSubtasks_clearEpicSubtaskIds() {
         Epic epic = new Epic("Test Epic", "Test Epic Description");
         int epicId = manager.addNewEpic(epic);
 
@@ -154,7 +154,7 @@ public class InMemoryTaskManagerTest {
     }
 
     @Test
-    public void testTaskModificationThroughSettersNotAffectsManager() {
+    public void getTask_taskModificationThroughSettersNotAffectManager() {
         Task task = new Task("Test Task", "Test Description", TaskStatus.NEW);
         int taskId = manager.addNewTask(task);
 
@@ -173,7 +173,7 @@ public class InMemoryTaskManagerTest {
     }
 
     @Test
-    public void testEpicStatusModificationThroughSettersNotAffectsManager() {
+    public void getEpic_epicStatusModificationThroughSetterNotAffectManager() {
         Epic epic = new Epic("Test Epic", "Test Epic Description");
         int epicId = manager.addNewEpic(epic);
 
@@ -191,7 +191,7 @@ public class InMemoryTaskManagerTest {
     }
 
     @Test
-    public void testSubtaskStatusModificationAffectsEpicStatus() {
+    public void getSubtask_subtaskStatusModificationAffectEpicStatusOnlyViaManager() {
         Epic epic = new Epic("Test Epic", "Test Epic Description");
         int epicId = manager.addNewEpic(epic);
 
@@ -217,7 +217,7 @@ public class InMemoryTaskManagerTest {
     }
 
     @Test
-    public void testAddSubtaskToNonExistentEpic() {
+    public void addSubtask_notAddSubtaskToNonExistentEpic() {
         // Создаем subtask с привязкой к несуществующему epic
         Subtask subtask = new Subtask(1, "Test Subtask", "Description", TaskStatus.NEW, 999);
 
@@ -228,15 +228,25 @@ public class InMemoryTaskManagerTest {
     }
 
     @Test
-    public void testDeleteNonExistentTasks() {
+    public void deleteTask_doNotThrowException_deleteNonExistentTask() {
         // Не должно быть исключений при удалении несуществующих задач
         assertDoesNotThrow(() -> manager.deleteTask(999));
+    }
+
+    @Test
+    public void deleteSubtask_doNotThrowException_deleteNonExistentSubTask() {
+        // Не должно быть исключений при удалении несуществующих подзадач
         assertDoesNotThrow(() -> manager.deleteSubtask(999));
+    }
+
+    @Test
+    public void deleteEpic_doNotThrowException_deleteNonExistentEpic() {
+        // Не должно быть исключений при удалении несуществующих эпиков
         assertDoesNotThrow(() -> manager.deleteEpic(999));
     }
 
     @Test
-    public void testUpdateNonExistentTask() {
+    public void updateTask_doNotThrowException_nonExistentTask() {
         Task task = new Task(999, "Test", "Description", TaskStatus.NEW);
 
         // Не должно быть исключений при обновлении несуществующей задачи
@@ -244,7 +254,7 @@ public class InMemoryTaskManagerTest {
     }
 
     @Test
-    public void testEpicStatusCalculationWithMultipleSubtasks() {
+    public void updateSubtask_subtaskStatusChangeEffectEpicStatus() {
         Epic epic = new Epic("Test Epic", "Test Epic Description");
         int epicId = manager.addNewEpic(epic);
 
@@ -281,7 +291,7 @@ public class InMemoryTaskManagerTest {
     }
 
     @Test
-    public void testGetEpicsReturnsAllEpics() {
+    public void getEpics_returnAllEpics() {
         Epic epic1 = new Epic("Epic 1", "Description 1");
         Epic epic2 = new Epic("Epic 2", "Description 2");
 
@@ -295,13 +305,13 @@ public class InMemoryTaskManagerTest {
     }
 
     @Test
-    public void testGetEpicsReturnsEmptyListWhenNoEpics() {
+    public void getEpics_returnEmptyList_NoEpicsAdded() {
         List<Epic> epics = manager.getEpics();
         assertTrue(epics.isEmpty(), "Should return empty list when no epics");
     }
 
     @Test
-    public void testGetEpicSubtasksReturnsCorrectSubtasks() {
+    public void getEpicSubtasks_returnCorrectSubtasks() {
         Epic epic = new Epic("Test Epic", "Test Description");
         int epicId = manager.addNewEpic(epic);
 
@@ -318,13 +328,13 @@ public class InMemoryTaskManagerTest {
     }
 
     @Test
-    public void testGetEpicSubtasksReturnsNullForNonExistentEpic() {
+    public void getEpicSubtasks_returnNull_nonExistentEpic() {
         List<Subtask> subtasks = manager.getEpicSubtasks(999);
         assertNull(subtasks, "Should return null for non-existent epic");
     }
 
     @Test
-    public void testGetEpicSubtasksReturnsEmptyListForEpicWithoutSubtasks() {
+    public void getEpicSubtasks_returnEmptyList_epicWithoutSubtasks() {
         Epic epic = new Epic("Test Epic", "Test Description");
         int epicId = manager.addNewEpic(epic);
 
@@ -334,7 +344,7 @@ public class InMemoryTaskManagerTest {
     }
 
     @Test
-    public void testUpdateEpicModifiesNameAndDescription() {
+    public void updateEpic_modifyEpicData() {
         Epic epic = new Epic("Original Name", "Original Description");
         int epicId = manager.addNewEpic(epic);
 
@@ -347,7 +357,7 @@ public class InMemoryTaskManagerTest {
     }
 
     @Test
-    public void testUpdateEpicDoesNotChangeSubtaskIds() {
+    public void updateEpic_notChangeSubtaskIds() {
         Epic epic = new Epic("Test Epic", "Test Description");
         int epicId = manager.addNewEpic(epic);
 
@@ -367,7 +377,7 @@ public class InMemoryTaskManagerTest {
     }
 
     @Test
-    public void testUpdateEpicDoesNothingForNonExistentEpic() {
+    public void updateEpic_doNothing_nonExistentEpic() {
         Epic nonExistentEpic = new Epic(999, "Name", "Description");
 
         assertDoesNotThrow(() -> manager.updateEpic(nonExistentEpic),
@@ -377,7 +387,7 @@ public class InMemoryTaskManagerTest {
     }
 
     @Test
-    public void testDeleteTasksRemovesAllTasks() {
+    public void deleteTasks_removeAllTasks() {
         Task task1 = new Task("Task 1", "Description 1", TaskStatus.NEW);
         Task task2 = new Task("Task 2", "Description 2", TaskStatus.IN_PROGRESS);
 
@@ -392,7 +402,7 @@ public class InMemoryTaskManagerTest {
     }
 
     @Test
-    public void testDeleteTasksClearsHistoryForTasks() {
+    public void deleteTasks_clearHistoryOfTasks() {
         Task task1 = new Task("Task 1", "Description 1", TaskStatus.NEW);
         Task task2 = new Task("Task 2", "Description 2", TaskStatus.IN_PROGRESS);
 
@@ -411,7 +421,7 @@ public class InMemoryTaskManagerTest {
     }
 
     @Test
-    public void testDeleteTasksDoesNotAffectEpicsAndSubtasks() {
+    public void deleteTasks_notAffectEpicsAndSubtasks() {
         Task task = new Task("Task", "Description", TaskStatus.NEW);
         Epic epic = new Epic("Epic", "Description");
         int epicId = manager.addNewEpic(epic);
@@ -428,7 +438,7 @@ public class InMemoryTaskManagerTest {
     }
 
     @Test
-    public void testDeleteEpicsRemovesAllEpicsAndSubtasks() {
+    public void deleteEpics_removeAllEpicsAndSubtasks() {
         Epic epic1 = new Epic("Epic 1", "Description 1");
         Epic epic2 = new Epic("Epic 2", "Description 2");
         int epic1Id = manager.addNewEpic(epic1);
@@ -450,7 +460,7 @@ public class InMemoryTaskManagerTest {
     }
 
     @Test
-    public void testDeleteEpicsClearsHistoryForEpicsAndSubtasks() {
+    public void deleteEpics_clearHistoryOfEpicsAndSubtasks() {
         Epic epic = new Epic("Epic", "Description");
         int epicId = manager.addNewEpic(epic);
         Subtask subtask = new Subtask(2, "Subtask", "Description", TaskStatus.NEW, epicId);
@@ -468,7 +478,7 @@ public class InMemoryTaskManagerTest {
     }
 
     @Test
-    public void testDeleteEpicsDoesNotAffectTasks() {
+    public void deleteEpics_notAffectTasks() {
         Task task = new Task("Task", "Description", TaskStatus.NEW);
         Epic epic = new Epic("Epic", "Description");
         int epicId = manager.addNewEpic(epic);
@@ -485,7 +495,7 @@ public class InMemoryTaskManagerTest {
     }
 
     @Test
-    public void testGetHistoryReturnsViewedTasksInOrder() {
+    public void getHistory_returnViewedTasksInOrder() {
         Task task1 = new Task("Task 1", "Description 1", TaskStatus.NEW);
         Task task2 = new Task("Task 2", "Description 2", TaskStatus.IN_PROGRESS);
         Epic epic = new Epic("Epic", "Description");
@@ -507,13 +517,13 @@ public class InMemoryTaskManagerTest {
     }
 
     @Test
-    public void testGetHistoryReturnsEmptyListWhenNoViews() {
+    public void getHistory_returnEmptyList_noViewsMade() {
         List<Task> history = manager.getHistory();
         assertTrue(history.isEmpty(), "History should be empty when no tasks were viewed");
     }
 
     @Test
-    public void testGetHistoryDoesNotContainDuplicates() {
+    public void getHistory_notContainDuplicates() {
         Task task = new Task("Task", "Description", TaskStatus.NEW);
         int taskId = manager.addNewTask(task);
 
@@ -528,7 +538,7 @@ public class InMemoryTaskManagerTest {
     }
 
     @Test
-    public void testGetHistoryDoesNotContainDeletedTasks() {
+    public void getHistory_notContainDeletedTasks() {
         Task task1 = new Task("Task 1", "Description 1", TaskStatus.NEW);
         Task task2 = new Task("Task 2", "Description 2", TaskStatus.IN_PROGRESS);
 
