@@ -83,7 +83,7 @@ public class InMemoryTaskManager implements TaskManager {
 	@Override
 	public int addNewTask(Task task) {
 		if (task.getId() == null) {
-			final int id = ++generatorId;
+			final int id = getNextId();
 			task.setId(id);
 		} else if (tasks.containsKey(task.getId())) {
 			throw new IllegalArgumentException("Task with id " + task.getId() + " already exists");
@@ -95,7 +95,7 @@ public class InMemoryTaskManager implements TaskManager {
 
 	@Override
 	public int addNewEpic(Epic epic) {
-		final int id = ++generatorId;
+		final int id = getNextId();
 		epic.setId(id);
 		epics.put(id, epic);
 		return id;
@@ -109,7 +109,7 @@ public class InMemoryTaskManager implements TaskManager {
 		if (epic == null) {
 			return null;
 		}
-		final int id = ++generatorId;
+		final int id = getNextId();
 		subtask.setId(id);
 		subtasks.put(id, subtask);
 		epic.addSubtaskId(subtask.getId());
@@ -252,5 +252,9 @@ public class InMemoryTaskManager implements TaskManager {
 			return;
 		}
 		epic.setStatus(status);
+	}
+
+	private int getNextId() {
+		return ++generatorId;
 	}
 }
