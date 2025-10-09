@@ -13,7 +13,7 @@ public class InMemoryHistoryManagerTest {
 
     @BeforeEach
     public void initHistoryManager() {
-        historyManager = Managers.getDefaultHistory();
+        historyManager = new InMemoryHistoryManager();
     }
 
     @Test
