@@ -3,7 +3,7 @@ package ru.yandex.javacourse.schedule.tasks;
 import java.util.Objects;
 
 public class Task {
-	protected int id;
+	protected Integer id;
 	protected String name;
 	protected TaskStatus status;
 	protected String description;
@@ -21,7 +21,14 @@ public class Task {
 		this.status = status;
 	}
 
-	public int getId() {
+	public Task(Task other) {
+		this.id = other.id;
+		this.name = other.name;
+		this.description = other.description;
+		this.status = other.status;
+	}
+
+	public Integer getId() {
 		return id;
 	}
 
@@ -63,7 +70,7 @@ public class Task {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
 		Task task = (Task) o;
-		return id == task.id;
+		return Objects.equals(id, task.id);
 	}
 
 	@Override
