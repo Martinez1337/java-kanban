@@ -5,11 +5,6 @@ import java.util.*;
 import ru.yandex.javacourse.schedule.tasks.Task;
 import ru.yandex.javacourse.schedule.util.entities.Node;
 
-/**
- * In memory history manager.
- *
- * @author Vladimir Ivanov (ivanov.vladimir.l@gmail.com)
- */
 public class InMemoryHistoryManager implements HistoryManager {
 	private final Map<Integer, Node<Task>> taskMap = new HashMap<>();
 

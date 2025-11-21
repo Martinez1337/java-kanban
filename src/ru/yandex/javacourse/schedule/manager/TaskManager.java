@@ -6,11 +6,6 @@ import ru.yandex.javacourse.schedule.tasks.Epic;
 import ru.yandex.javacourse.schedule.tasks.Subtask;
 import ru.yandex.javacourse.schedule.tasks.Task;
 
-/**
- * Task manager.
- *
- * @author Vladimir Ivanov (ivanov.vladimir.l@gmail.com)
- */
 public interface TaskManager {
 	List<Task> getTasks();
 
