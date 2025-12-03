@@ -1,12 +1,15 @@
 package ru.yandex.javacourse.schedule.manager;
 
 import ru.yandex.javacourse.schedule.tasks.*;
+import ru.yandex.javacourse.schedule.util.TaskCSVConverter;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
 
 public class FileBackedTaskManager extends InMemoryTaskManager {
     private final Path saveFile;
@@ -20,15 +23,15 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
             bw.write("id,type,name,status,description,epic");
             bw.newLine();
             for (Task task : getTasks()) {
-                bw.write(fromTaskToString(task));
+                bw.write(TaskCSVConverter.fromTaskToString(task));
                 bw.newLine();
             }
             for (Epic epic : getEpics()) {
-                bw.write(fromTaskToString(epic));
+                bw.write(TaskCSVConverter.fromTaskToString(epic));
                 bw.newLine();
             }
             for (Subtask subtask : getSubtasks()) {
-                bw.write(fromTaskToString(subtask));
+                bw.write(TaskCSVConverter.fromTaskToString(subtask));
                 bw.newLine();
             }
         } catch (IOException e) {
@@ -42,26 +45,28 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
             return manager;
         }
         try (BufferedReader br = Files.newBufferedReader(file)) {
-            br.readLine(); // Пропускаем заголовок
             String line;
             int maxId = 0;
+            List<Subtask> allSubtasks = new ArrayList<>();
+            br.readLine(); // Пропускаем заголовок
             while ((line = br.readLine()) != null) {
                 if (line.trim().isEmpty()) continue;
-                Task task = fromStringToTask(line);
+                Task task = TaskCSVConverter.fromStringToTask(line);
                 maxId = Math.max(maxId, task.getId());
                 switch (task.getType()) {
                     case TASK -> manager.tasks.put(task.getId(), task);
                     case EPIC -> manager.epics.put(task.getId(), (Epic) task);
-                    case SUBTASK -> {
-                        Subtask subtask = (Subtask) task;
-                        Epic epic = manager.epics.get(subtask.getEpicId());
-                        if (epic == null) {
-                            throw new IllegalStateException("Epic not found for subtask ID " + subtask.getId());
-                        }
-                        manager.subtasks.put(subtask.getId(), subtask);
-                        epic.addSubtaskId(subtask.getId());
-                    }
+                    case SUBTASK -> allSubtasks.add((Subtask) task);
                 }
+            }
+            // Обрабатываем подзадачи
+            for (Subtask subtask : allSubtasks) {
+                Epic epic = manager.epics.get(subtask.getEpicId());
+                if (epic == null) {
+                    throw new IllegalStateException("Epic not found for subtask ID " + subtask.getId());
+                }
+                manager.subtasks.put(subtask.getId(), subtask);
+                epic.addSubtaskId(subtask.getId());
             }
             // Обновляем статусы эпиков
             for (Epic epic : manager.getEpics()) {
@@ -75,41 +80,6 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         return manager;
     }
 
-    private static String fromTaskToString(Task task) {
-        StringBuilder sb = new StringBuilder();
-        sb.append(task.getId()).append(',')
-                .append(task.getType()).append(',')
-                .append(task.getName()).append(',')
-                .append(task.getStatus()).append(',')
-                .append(task.getDescription()).append(',');
-
-        if (task instanceof Subtask) {
-            sb.append(((Subtask) task).getEpicId());
-        }
-
-        return sb.toString();
-    }
-
-    private static Task fromStringToTask(String str) {
-        String[] params = str.split(",");
-        return switch (TaskType.valueOf(params[1].toUpperCase())) {
-            case EPIC -> new Epic(
-                    Integer.parseInt(params[0]),
-                    params[2],
-                    params[4]);
-            case SUBTASK -> new Subtask(
-                    Integer.parseInt(params[0]),
-                    params[2],
-                    params[4],
-                    TaskStatus.valueOf(params[3]),
-                    Integer.parseInt(params[5]));
-            case TASK -> new Task(
-                    Integer.parseInt(params[0]),
-                    params[2],
-                    params[4],
-                    TaskStatus.valueOf(params[3]));
-        };
-    }
 
     @Override
     public Integer addNewTask(Task task) {
