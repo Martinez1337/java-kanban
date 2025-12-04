@@ -14,13 +14,12 @@ import ru.yandex.javacourse.schedule.tasks.Task;
 import ru.yandex.javacourse.schedule.tasks.TaskStatus;
 
 public class InMemoryTaskManager implements TaskManager {
+	protected final Map<Integer, Task> tasks = new HashMap<>();
+	protected final Map<Integer, Epic> epics = new HashMap<>();
+	protected final Map<Integer, Subtask> subtasks = new HashMap<>();
+	protected int generatorId = 0;
 
-	private final Map<Integer, Task> tasks = new HashMap<>();
-	private final Map<Integer, Epic> epics = new HashMap<>();
-	private final Map<Integer, Subtask> subtasks = new HashMap<>();
-	private int generatorId = 0;
 	private final HistoryManager historyManager = Managers.getDefaultHistory();
-
 
 	@Override
 	public ArrayList<Task> getTasks() {
@@ -81,7 +80,7 @@ public class InMemoryTaskManager implements TaskManager {
 	}
 
 	@Override
-	public int addNewTask(Task task) {
+	public Integer addNewTask(Task task) {
 		if (task.getId() == null) {
 			final int id = getNextId();
 			task.setId(id);
@@ -94,7 +93,7 @@ public class InMemoryTaskManager implements TaskManager {
 	}
 
 	@Override
-	public int addNewEpic(Epic epic) {
+	public Integer addNewEpic(Epic epic) {
 		final int id = getNextId();
 		epic.setId(id);
 		epics.put(id, epic);
@@ -229,7 +228,7 @@ public class InMemoryTaskManager implements TaskManager {
 		return historyManager.getHistory();
 	}
 
-	private void updateEpicStatus(int epicId) {
+	protected void updateEpicStatus(int epicId) {
 		Epic epic = epics.get(epicId);
 		List<Integer> subs = epic.getSubtaskIds();
 		if (subs.isEmpty()) {
