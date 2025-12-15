@@ -20,7 +20,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
 
     public void save() {
         try (BufferedWriter bw = Files.newBufferedWriter(saveFile)) {
-            bw.write("id,type,name,status,description,epic");
+            bw.write("id,type,name,status,description,duration,startTime,epic");
             bw.newLine();
             for (Task task : getTasks()) {
                 bw.write(TaskCSVConverter.fromTaskToString(task));
@@ -68,9 +68,10 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
                 manager.subtasks.put(subtask.getId(), subtask);
                 epic.addSubtaskId(subtask.getId());
             }
-            // Обновляем статусы эпиков
+            // Обновляем статусы и время эпиков
             for (Epic epic : manager.getEpics()) {
-                manager.updateEpicStatus(epic.getId());
+                manager.updateEpicStatus(epic);
+                manager.updateEpicTimes(epic);
             }
             // Обновляем generatorId
             manager.generatorId = maxId;
