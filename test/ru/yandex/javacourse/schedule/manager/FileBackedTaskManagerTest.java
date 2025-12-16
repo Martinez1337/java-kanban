@@ -10,6 +10,7 @@ import ru.yandex.javacourse.schedule.tasks.TaskStatus;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.Duration;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -45,10 +46,10 @@ public class FileBackedTaskManagerTest extends TaskManagerTest {
     void loadFromFile_multipleTasks() throws IOException {
         // Создаём файл вручную
         String csvContent = """
-                id,type,name,status,description,epic
-                1,TASK,Task1,NEW,Desc1,
-                2,EPIC,Epic1,NEW,DescEpic,
-                3,SUBTASK,Sub1,DONE,DescSub,2
+                id,type,name,status,description,duration,startTime,epic
+                1,TASK,Task1,NEW,Desc1,10,null,
+                2,EPIC,Epic1,NEW,DescEpic,10,null,
+                3,SUBTASK,Sub1,DONE,DescSub,10,null,2
                 """;
         Files.writeString(tempFile, csvContent);
 
@@ -66,7 +67,7 @@ public class FileBackedTaskManagerTest extends TaskManagerTest {
         assertEquals(2, loaded.getSubtasks().get(0).getEpicId());
 
         // Проверяем generatorId (max 3 + 1 = 4)
-        Task newTask = new Task("NewTask", "Desc", TaskStatus.NEW);
+        Task newTask = new Task("NewTask", "Desc", TaskStatus.NEW, null, null);
         int newId = loaded.addNewTask(newTask);
         assertEquals(4, newId);
     }
@@ -74,8 +75,8 @@ public class FileBackedTaskManagerTest extends TaskManagerTest {
     @Test
     void loadFromFile_throwException_missingEpic() {
         // Файл с сабтаском без эпика
-        String csvContent = "id,type,name,status,description,epic\n" +
-                "3,SUBTASK,Sub1,NEW,DescSub,999\n";
+        String csvContent = "id,type,name,status,description,duration,startTime,epic\n" +
+                "3,SUBTASK,Sub1,NEW,DescSub,10,null,999\n";
         try {
             Files.writeString(tempFile, csvContent);
             assertThrows(IllegalStateException.class, () -> FileBackedTaskManager.loadFromFile(tempFile));
@@ -87,20 +88,20 @@ public class FileBackedTaskManagerTest extends TaskManagerTest {
     @Test
     void save_multipleTasks() {
         // Добавляем задачи
-        Task task = new Task("Task1", "Desc1", TaskStatus.NEW);
+        Task task = new Task("Task1", "Desc1", TaskStatus.NEW, Duration.ofMinutes(10), null);
         manager.addNewTask(task);
         Epic epic = new Epic("Epic1", "DescEpic");
         int epicId = manager.addNewEpic(epic);
-        Subtask subtask = new Subtask("Sub1", "DescSub", TaskStatus.NEW, epicId);
+        Subtask subtask = new Subtask("Sub1", "DescSub", TaskStatus.NEW, Duration.ofMinutes(10), null, epicId);
         subtask.setStatus(TaskStatus.DONE);
         manager.addNewSubtask(subtask);
 
         // Проверяем содержимое файла сохранения
         try {
             String content = Files.readString(tempFile);
-            assertTrue(content.contains("1,TASK,Task1,NEW,Desc1,\n"));
-            assertTrue(content.contains("2,EPIC,Epic1,DONE,DescEpic,\n"));
-            assertTrue(content.contains("3,SUBTASK,Sub1,DONE,DescSub,2\n"));
+            assertTrue(content.contains("1,TASK,Task1,NEW,Desc1,10,null,\n"));
+            assertTrue(content.contains("2,EPIC,Epic1,DONE,DescEpic,10,null,\n"));
+            assertTrue(content.contains("3,SUBTASK,Sub1,DONE,DescSub,10,null,2\n"));
         } catch (IOException e) {
             fail("Failed to read file");
         }

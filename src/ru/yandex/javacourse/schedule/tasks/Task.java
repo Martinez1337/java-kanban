@@ -1,5 +1,7 @@
 package ru.yandex.javacourse.schedule.tasks;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.Objects;
 
 public class Task {
@@ -7,18 +9,24 @@ public class Task {
 	protected String name;
 	protected TaskStatus status;
 	protected String description;
+	protected Duration duration;
+	protected LocalDateTime startTime;
 
-	public Task(int id, String name, String description, TaskStatus status) {
+	public Task(int id, String name, String description, TaskStatus status, Duration duration, LocalDateTime startTime) {
 		this.id = id;
 		this.name = name;
 		this.description = description;
 		this.status = status;
+		this.duration = duration != null ? duration : Duration.ZERO;
+		this.startTime = startTime;
 	}
 
-	public Task(String name, String description, TaskStatus status) {
+	public Task(String name, String description, TaskStatus status, Duration duration, LocalDateTime startTime) {
 		this.name = name;
 		this.description = description;
 		this.status = status;
+		this.duration = duration != null ? duration : Duration.ZERO;
+		this.startTime = startTime;
 	}
 
 	public Task(Task other) {
@@ -26,6 +34,8 @@ public class Task {
 		this.name = other.name;
 		this.description = other.description;
 		this.status = other.status;
+		this.duration = other.duration != null ? other.duration : Duration.ZERO;
+		this.startTime = other.startTime;
 	}
 
 	public Integer getId() {
@@ -64,6 +74,29 @@ public class Task {
 		return TaskType.TASK;
 	}
 
+	public Duration getDuration() {
+		return duration;
+	}
+
+	public void setDuration(Duration duration) {
+		this.duration = duration;
+	}
+
+	public LocalDateTime getStartTime() {
+		return startTime;
+	}
+
+	public void setStartTime(LocalDateTime startTime) {
+		this.startTime = startTime;
+	}
+
+	public LocalDateTime getEndTime() {
+		if (startTime == null || duration == null) {
+			return null;
+		}
+		return startTime.plus(duration);
+	}
+
 	@Override
 	public int hashCode() {
 		return Objects.hash(id);
@@ -84,6 +117,8 @@ public class Task {
 				", name='" + name + '\'' +
 				", status='" + status + '\'' +
 				", description='" + description + '\'' +
+				", duration=" + duration +
+				", startTime=" + startTime +
 				'}';
 	}
 }

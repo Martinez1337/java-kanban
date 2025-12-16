@@ -15,6 +15,8 @@ public interface TaskManager {
 
 	List<Subtask> getEpicSubtasks(int epicId);
 
+	List<Task> getPrioritizedTasks();
+
 	Task getTask(int id);
 
 	Subtask getSubtask(int id);
