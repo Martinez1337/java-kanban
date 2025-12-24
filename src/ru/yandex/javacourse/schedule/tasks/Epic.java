@@ -8,20 +8,32 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Epic extends Task {
-	protected ArrayList<Integer> subtaskIds = new ArrayList<>();
-	private LocalDateTime endTime = null;
+	private final ArrayList<Integer> subtaskIds;
+	private LocalDateTime endTime;
+
+	//  Необходим для корректной работы Gson
+	// https://stackoverflow.com/questions/18645050/is-default-no-args-constructor-mandatory-for-gson
+	private Epic() {
+		super("", "", NEW, Duration.ZERO, null);
+		this.subtaskIds = new ArrayList<>();
+	}
 
 	public Epic(int id, String name, String description) {
 		super(id, name, description, NEW, Duration.ZERO, null);
+		subtaskIds = new ArrayList<>();
 	}
 
 	public Epic(String name, String description) {
 		super(name, description, NEW, Duration.ZERO, null);
+		this.subtaskIds = new ArrayList<>();
 	}
 
 	public Epic(Epic other) {
 		super(other);
-		this.subtaskIds.addAll(other.subtaskIds);
+		this.subtaskIds = new ArrayList<>();
+		if (other.subtaskIds != null) {
+			this.subtaskIds.addAll(other.subtaskIds);
+		}
 		this.endTime = other.endTime;
 	}
 
