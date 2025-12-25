@@ -68,7 +68,7 @@ public class FileBackedTaskManagerTest extends TaskManagerTest {
 
         // Проверяем generatorId (max 3 + 1 = 4)
         Task newTask = new Task("NewTask", "Desc", TaskStatus.NEW, null, null);
-        int newId = loaded.addNewTask(newTask);
+        int newId = loaded.createTask(newTask);
         assertEquals(4, newId);
     }
 
@@ -89,12 +89,12 @@ public class FileBackedTaskManagerTest extends TaskManagerTest {
     void save_multipleTasks() {
         // Добавляем задачи
         Task task = new Task("Task1", "Desc1", TaskStatus.NEW, Duration.ofMinutes(10), null);
-        manager.addNewTask(task);
+        manager.createTask(task);
         Epic epic = new Epic("Epic1", "DescEpic");
-        int epicId = manager.addNewEpic(epic);
+        int epicId = manager.createEpic(epic);
         Subtask subtask = new Subtask("Sub1", "DescSub", TaskStatus.NEW, Duration.ofMinutes(10), null, epicId);
         subtask.setStatus(TaskStatus.DONE);
-        manager.addNewSubtask(subtask);
+        manager.createSubtask(subtask);
 
         // Проверяем содержимое файла сохранения
         try {
