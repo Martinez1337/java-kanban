@@ -1,11 +1,8 @@
 package ru.yandex.javacourse.schedule.http.handler;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonParseException;
 import com.sun.net.httpserver.HttpExchange;
-import ru.yandex.javacourse.schedule.manager.NotFoundException;
 import ru.yandex.javacourse.schedule.manager.TaskManager;
-import ru.yandex.javacourse.schedule.manager.TimeConflictException;
 import ru.yandex.javacourse.schedule.tasks.Task;
 
 import java.io.IOException;
@@ -29,30 +26,7 @@ public abstract class CrudTaskHandler<T extends Task> extends BaseHttpHandler {
     protected abstract void deleteAll();
     protected abstract void deleteById(int id);
 
-    public void handle(HttpExchange exchange) throws IOException {
-        String method = exchange.getRequestMethod();
-        try {
-            switch (method) {
-                case "GET" -> handleGet(exchange);
-                case "POST" -> handlePost(exchange);
-                case "DELETE" -> handleDelete(exchange);
-                default -> sendError(exchange, "Method Not Allowed", 405);
-            }
-        } catch (JsonParseException e) {
-            sendError(exchange, "Invalid JSON", 400);
-        } catch (NumberFormatException e) {
-            sendError(exchange, "Invalid ID", 400);
-        } catch (NotFoundException e) {
-            sendNotFound(exchange);
-        } catch (TimeConflictException e) {
-            sendHasInteractions(exchange);
-        } catch (Exception e) {
-            sendError(exchange, "Internal Server Error", 500);
-        } finally {
-            exchange.close();
-        }
-    }
-
+    @Override
     protected void handleGet(HttpExchange exchange) throws IOException {
         String[] pathParts = exchange.getRequestURI().getPath().split("/");
         if (pathParts.length == 2) {
@@ -66,6 +40,7 @@ public abstract class CrudTaskHandler<T extends Task> extends BaseHttpHandler {
         }
     }
 
+    @Override
     protected void handlePost(HttpExchange exchange) throws IOException {
         String[] pathParts = exchange.getRequestURI().getPath().split("/");
         if (pathParts.length == 2) {
@@ -85,6 +60,7 @@ public abstract class CrudTaskHandler<T extends Task> extends BaseHttpHandler {
         }
     }
 
+    @Override
     protected void handleDelete(HttpExchange exchange) throws IOException {
         String[] pathParts = exchange.getRequestURI().getPath().split("/");
         if (pathParts.length == 2) {
